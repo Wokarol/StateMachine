@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace Wokarol.StateMachineSystem
 {
@@ -26,19 +24,21 @@ namespace Wokarol.StateMachineSystem
         {
             this.initialState = initialState;
             History = new DropOutStack<State>(maxHistoryDepth);
-            ChangeState(this.initialState);
+            ChangeState(this.initialState, null);
         }
 
         /// <summary>
         /// Changes to given state
         /// </summary>
-        public void ChangeState(State nextState)
+        public void ChangeState(State nextState, Action onTransitionAction)
         {
 
             bool transitionToSameState = nextState == CurrentState;
             if (transitionToSameState && !CurrentState.CanTransitionToSelf) return; // Makes sure that transition will not occur if current state can't transition to themself
 
-            if(CurrentState != null) {
+            onTransitionAction?.Invoke();
+
+            if (CurrentState != null) {
                 History.Push(CurrentState);
             }
 
@@ -59,26 +59,24 @@ namespace Wokarol.StateMachineSystem
         {
             BeenTickedThrough = true;
 
-            var anyTransitionResult = StateUtils.CheckTransitions(transitions, CurrentState);
-
-            if (CurrentState != null) {
-                // There is current state
-                var tickResult = CurrentState.Tick(delta);
-                if(anyTransitionResult.next == null) {
-                    // There is no "from any" transition
-                    var stateTransitionResult = CurrentState.CheckTransitions();
-                    if (stateTransitionResult.next != null) {
-                        // Next transition exist
-                        stateTransitionResult.action?.Invoke();
-                        ChangeState(stateTransitionResult.next);
-                    }
-                }
+            // Checks if Machine should transition from any state
+            StateUtils.TransitionResult anyTransitionResult = StateUtils.CheckTransitions(transitions, CurrentState);
+            if (anyTransitionResult.Valid) {
+                // Next transition exist
+                ChangeState(anyTransitionResult.Next, anyTransitionResult.Action);
             }
 
-            if(anyTransitionResult.next != null) {
+            // Ticks through state machine
+            State tickResult = CurrentState?.Tick(delta);
+            if(tickResult != null) {
+                ChangeState(tickResult, null);
+            }
+
+            // Checks if any state transition is valid
+            StateUtils.TransitionResult stateTransitionResult = CurrentState.CheckTransitions();
+            if (stateTransitionResult.Valid) {
                 // Next transition exist
-                anyTransitionResult.action?.Invoke();
-                ChangeState(anyTransitionResult.next);
+                ChangeState(stateTransitionResult.Next, stateTransitionResult.Action);
             }
         }
 
@@ -106,7 +104,7 @@ namespace Wokarol.StateMachineSystem
         /// </summary>
         public void Restart()
         {
-            ChangeState(initialState);
+            ChangeState(initialState, null);
         }
     }
 
@@ -138,13 +136,14 @@ namespace Wokarol.StateMachineSystem
 
         public struct TransitionResult
         {
-            public readonly State next;
-            public readonly Action action;
+            public readonly State Next;
+            public readonly Action Action;
+            public bool Valid => Next != null;
 
             public TransitionResult(State next, Action action)
             {
-                this.next = next;
-                this.action = action;
+                Next = next;
+                Action = action;
             }
 
             public static TransitionResult Empty => new TransitionResult(null, null);

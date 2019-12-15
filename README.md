@@ -22,6 +22,22 @@ ducking.AddTransition(s => !downPressed, standing);
 // Initialization
 stateMachine = new StateMachine(standing);
 ```
+you can also move transitions to states themselves, then you just need to pass states to other states like that for example
+```cs
+// States
+State standing = new Standing(this.characterController);
+State jumping = new Jumping(this.characterController);
+State ducking = new Ducking(this.characterController);
+State diving = new Diving(this.characterController);
+
+// State Injections
+standing.InjectStates(ducking, jumping);
+jumping.InjectStates(diving);
+ducking.InjectStates(standing);
+
+// Initialization
+stateMachine = new StateMachine(standing);
+```
 
 >Rememeber, you will have to call
 >```cs

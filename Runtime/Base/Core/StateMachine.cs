@@ -32,8 +32,9 @@ namespace Wokarol.StateMachineSystem
         /// <summary>
         /// Changes to given state
         /// </summary>
-        public void ChangeState(State nextState)
+        public void ChangeState(State nextState, Action action = null)
         {
+            action?.Invoke();
 
             bool transitionToSameState = nextState == CurrentState;
             if (transitionToSameState && !CurrentState.CanTransitionToSelf) return; // Makes sure that transition will not occur if current state can't transition to themself
@@ -61,30 +62,33 @@ namespace Wokarol.StateMachineSystem
         {
             BeenTickedThrough = true;
 
-            var anyTransitionResult = StateUtils.CheckTransitions(transitions, CurrentState);
+            State tickResult = null;
+            if(CurrentState != null)
+            {
+                CurrentState.Tick(delta);
+            }
+
+            // Check for any => state [external]
+            StateUtils.TransitionResult anyTransitionResult = StateUtils.CheckTransitions(transitions, CurrentState);
+            if(anyTransitionResult.next != null)
+            {
+                ChangeState(anyTransitionResult.next, anyTransitionResult.action);
+                return;
+            }
 
             if (CurrentState != null)
             {
-                // There is current state
-                var tickResult = CurrentState.Tick(delta);
-                if (anyTransitionResult.next == null)
+                StateUtils.TransitionResult stateTransitionResult = CurrentState.CheckTransitions();
+                if (stateTransitionResult.next != null)
                 {
-                    // There is no "from any" transition
-                    var stateTransitionResult = CurrentState.CheckTransitions();
-                    if (stateTransitionResult.next != null)
-                    {
-                        // Next transition exist
-                        stateTransitionResult.action?.Invoke();
-                        ChangeState(stateTransitionResult.next);
-                    }
+                    ChangeState(stateTransitionResult.next, stateTransitionResult.action);
+                    return;
                 }
-            }
-
-            if (anyTransitionResult.next != null)
-            {
-                // Next transition exist
-                anyTransitionResult.action?.Invoke();
-                ChangeState(anyTransitionResult.next);
+                else if(tickResult != null)
+                {
+                    ChangeState(tickResult);
+                    return;
+                }
             }
         }
 
@@ -93,7 +97,22 @@ namespace Wokarol.StateMachineSystem
         /// </summary>
         public void ForceTransitionCheck()
         {
+            StateUtils.TransitionResult anyTransitionResult = StateUtils.CheckTransitions(transitions, CurrentState);
+            if (anyTransitionResult.next != null)
+            {
+                ChangeState(anyTransitionResult.next, anyTransitionResult.action);
+                return;
+            }
 
+            if (CurrentState != null)
+            {
+                StateUtils.TransitionResult stateTransitionResult = CurrentState.CheckTransitions();
+                if (stateTransitionResult.next != null)
+                {
+                    ChangeState(stateTransitionResult.next, stateTransitionResult.action);
+                    return;
+                }
+            }
         }
 
         /// <summary>

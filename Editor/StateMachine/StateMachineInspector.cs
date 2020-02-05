@@ -1,12 +1,12 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
-using System.Reflection;
-using UnityEditor;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-using System;
-using Wokarol.StateMachineSystem;
-using System.Text.RegularExpressions;
+using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
+using UnityEditor;
+using UnityEngine;
+using Wokarol.StateMachineSystem;
 
 public class StateMachineInspector : EditorWindow
 {
@@ -48,13 +48,15 @@ public class StateMachineInspector : EditorWindow
     // Updates selection if window isn't locked
     private void UpdateSelection()
     {
-        if (!locked) {
+        if (!locked)
+        {
             selectedGameObjects = Selection.gameObjects;
         }
     }
 
 
-    private void Update() {
+    private void Update()
+    {
         Repaint();
     }
 
@@ -64,13 +66,16 @@ public class StateMachineInspector : EditorWindow
 
         EditorGUILayout.Space();
 
-        if(selectedGameObjects.Length == 0) {
+        if (selectedGameObjects.Length == 0)
+        {
             EditorGUILayout.HelpBox("Nothing selected", MessageType.None);
         }
 
         // GUI
-        foreach (var target in selectedGameObjects) {
-            foreach (var component in target.GetComponents<MonoBehaviour>()) {
+        foreach (var target in selectedGameObjects)
+        {
+            foreach (var component in target.GetComponents<MonoBehaviour>())
+            {
                 Type type = component.GetType();
                 var fields = GetAllFieldsFromType(type);
                 var stateMachineFields = fields.Where(f => f.FieldType == typeof(StateMachine)).Select(f => new NamedField<StateMachine>(ParseToNiceName(f.Name), f.GetValue(component) as StateMachine));
@@ -80,44 +85,59 @@ public class StateMachineInspector : EditorWindow
                 EditorGUI.indentLevel += 1;
                 EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
 
-                foreach (var sm in stateMachineFields) {
+                foreach (var sm in stateMachineFields)
+                {
                     builder.Clear();
                     builder.AppendLine($"{sm.Name}");
                     // TODO: Indent?
                     builder.AppendLine($"--------------------------");
-                    if (Application.isPlaying) {
-                        if(sm.Value != null) {
+                    if (Application.isPlaying)
+                    {
+                        if (sm.Value != null)
+                        {
                             // Current State
                             builder.AppendLine($"Current State: <b>{(sm.Value.CurrentState != null ? sm.Value.CurrentState.Name : "null")}</b>");
                             var historyPopped = new Stack<State>();
 
                             // History
-                            while(sm.Value.History.Count > 0) {
-                                if(historyPopped.Count != historyLenght) {
+                            while (sm.Value.History.Count > 0)
+                            {
+                                if (historyPopped.Count != historyLenght)
+                                {
                                     var state = sm.Value.History.Pop();
                                     historyPopped.Push(state);
-                                    if(historyPopped.Count == 1) {
+                                    if (historyPopped.Count == 1)
+                                    {
                                         builder.AppendLine($"History: \t{state.Name}");
-                                    } else {
+                                    }
+                                    else
+                                    {
                                         builder.AppendLine($"\t{state.Name}");
                                     }
-                                    
-                                } else {
+
+                                }
+                                else
+                                {
                                     builder.AppendLine($"\t ... ({sm.Value.History.Count}) ...");
                                     break;
                                 }
                             }
-                            while(historyPopped.Count > 0) {
+                            while (historyPopped.Count > 0)
+                            {
                                 sm.Value.History.Push(historyPopped.Pop());
                             }
 
                             //builder.AppendLine($"--------------------------");
 
 
-                        } else {
+                        }
+                        else
+                        {
                             builder.AppendLine($"State machine is null");
                         }
-                    } else {
+                    }
+                    else
+                    {
                         builder.AppendLine($"Waiting for playmode");
                     }
 
@@ -149,10 +169,12 @@ public class StateMachineInspector : EditorWindow
     {
         List<FieldInfo> fields = new List<FieldInfo>();
         Type baseType = null;
-        do {
+        do
+        {
             baseType = type.BaseType;
             var foundFields = type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-            foreach (var foundField in foundFields) {
+            foreach (var foundField in foundFields)
+            {
                 if (!fields.Select(f => f.Name).ToList().Contains(foundField.Name))
                     fields.Add(foundField);
             }

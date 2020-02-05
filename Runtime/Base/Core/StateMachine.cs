@@ -11,7 +11,8 @@ namespace Wokarol.StateMachineSystem
         State initialState;
 
         // Properties
-        public List<Transition> Transitions {
+        public List<Transition> Transitions
+        {
             get => transitions;
             set => transitions = value ?? throw new ArgumentNullException();
         }
@@ -37,7 +38,8 @@ namespace Wokarol.StateMachineSystem
             bool transitionToSameState = nextState == CurrentState;
             if (transitionToSameState && !CurrentState.CanTransitionToSelf) return; // Makes sure that transition will not occur if current state can't transition to themself
 
-            if(CurrentState != null) {
+            if (CurrentState != null)
+            {
                 History.Push(CurrentState);
             }
 
@@ -46,7 +48,8 @@ namespace Wokarol.StateMachineSystem
             CurrentState = nextState;
 
             // Calls enter on new state and add it to history
-            if (nextState != null) {
+            if (nextState != null)
+            {
                 nextState.Enter(this, transitionToSameState);
             }
         }
@@ -60,13 +63,16 @@ namespace Wokarol.StateMachineSystem
 
             var anyTransitionResult = StateUtils.CheckTransitions(transitions, CurrentState);
 
-            if (CurrentState != null) {
+            if (CurrentState != null)
+            {
                 // There is current state
                 var tickResult = CurrentState.Tick(delta);
-                if(anyTransitionResult.next == null) {
+                if (anyTransitionResult.next == null)
+                {
                     // There is no "from any" transition
                     var stateTransitionResult = CurrentState.CheckTransitions();
-                    if (stateTransitionResult.next != null) {
+                    if (stateTransitionResult.next != null)
+                    {
                         // Next transition exist
                         stateTransitionResult.action?.Invoke();
                         ChangeState(stateTransitionResult.next);
@@ -74,7 +80,8 @@ namespace Wokarol.StateMachineSystem
                 }
             }
 
-            if(anyTransitionResult.next != null) {
+            if (anyTransitionResult.next != null)
+            {
                 // Next transition exist
                 anyTransitionResult.action?.Invoke();
                 ChangeState(anyTransitionResult.next);
@@ -127,8 +134,10 @@ namespace Wokarol.StateMachineSystem
     {
         public static TransitionResult CheckTransitions(List<Transition> transitions, State currentState)
         {
-            foreach (var transition in transitions) {
-                if (transition.Evaluator(currentState)) {
+            foreach (var transition in transitions)
+            {
+                if (transition.Evaluator(currentState))
+                {
                     return new TransitionResult(transition.NextState, transition.OnTransitionAction);
                 }
             }

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Wokarol.StateMachineSystem
+﻿namespace Wokarol.StateMachineSystem
 {
     public class EmptyState : State
     {

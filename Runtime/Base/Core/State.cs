@@ -9,7 +9,8 @@ namespace Wokarol.StateMachineSystem
         private List<Transition> transitions = new List<Transition>();
 
         // Properties
-        public List<Transition> Transitions {
+        public List<Transition> Transitions
+        {
             get => transitions;
             set => transitions = value ?? throw new ArgumentNullException();
         }

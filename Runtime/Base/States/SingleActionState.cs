@@ -16,9 +16,9 @@ namespace Wokarol.StateMachineSystem
         public SingleActionState(string name, Action<State> action)
             : this(name, state => { action(state); return null; }) { }
 
-        protected override void EnterProcess(bool transitioningToSelf) 
+        protected override void EnterProcess(bool transitioningToSelf)
             => actionResult = action(this);
 
         protected override State Process(float delta) => actionResult;
-    } 
+    }
 }

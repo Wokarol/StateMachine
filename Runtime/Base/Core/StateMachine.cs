@@ -16,13 +16,22 @@ namespace Wokarol.StateMachineSystem
             get => transitions;
             set => transitions = value ?? throw new ArgumentNullException();
         }
-        public readonly DropOutStack<State> History;
+        public DropOutStack<State> History { get; private set; }
         public State CurrentState { get; private set; }
         public bool BeenTickedThrough { get; private set; } = false;
 
         // Constructors
-        private StateMachine() { }
+        public StateMachine()
+        {
+
+        }
+
         public StateMachine(State initialState, int maxHistoryDepth = 10)
+        {
+            StartFrom(initialState, maxHistoryDepth);
+        }
+
+        public void StartFrom(State initialState, int maxHistoryDepth = 10)
         {
             this.initialState = initialState;
             History = new DropOutStack<State>(maxHistoryDepth);

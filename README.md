@@ -12,12 +12,12 @@ State ducking = new Ducking(this.characterController);
 State diving = new Diving(this.characterController);
 
 // Transitions
-standing.AddTransition(s => downPressed, ducking);
-standing.AddTransition(s => bPressed, jumping);
+standing.AddTransition(ducking, s => downPressed);
+standing.AddTransition(jumping, s => bPressed);
 
-jumping.AddTransition(s => downPressed, diving);
+jumping.AddTransition(diving, s => downPressed);
 
-ducking.AddTransition(s => !downPressed, standing);
+ducking.AddTransition(standing, s => !downPressed);
 
 // Initialization
 stateMachine = new StateMachine(standing);
@@ -31,9 +31,9 @@ State ducking = new Ducking(this.characterController);
 State diving = new Diving(this.characterController);
 
 // State Injections
-standing.InjectStates(ducking, jumping);
-jumping.InjectStates(diving);
-ducking.InjectStates(standing);
+standing.SetStates(ducking, jumping);
+jumping.SetStates(diving);
+ducking.SetStates(standing);
 
 // Initialization
 stateMachine = new StateMachine(standing);

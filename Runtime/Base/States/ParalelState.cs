@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
 
 namespace Wokarol.StateMachineSystem
 {
@@ -6,7 +9,11 @@ namespace Wokarol.StateMachineSystem
     {
         State[] states;
 
-        public ParalelState(State[] states) => this.states = states ?? throw new ArgumentNullException(nameof(states));
+        public ParalelState(string name, params State[] states)
+        {
+            this.Name = name;
+            this.states = states ?? throw new ArgumentNullException(nameof(states));
+        }
 
         public override bool CanTransitionToSelf {
             get {

@@ -52,10 +52,10 @@ namespace Wokarol.StateMachineSystem
         /// <summary>
         /// Adds transition to Transitions list (works exactly like adding transition manually)
         /// </summary>
-        /// <param name="evaluator">Transition is active if this function returns true</param>
         /// <param name="nextState">State to transition to</param>
+        /// <param name="evaluator">Transition is active if this function returns true</param>
         /// <param name="onTransitionAction">Action that is called when transition is executed</param>
-        public void AddTransition(Func<State, bool> evaluator, State nextState, Action onTransitionAction = null)
+        public void AddTransition(State nextState, Func<State, bool> evaluator, Action onTransitionAction = null)
         {
             Transitions.Add(new Transition(evaluator, nextState, onTransitionAction));
         }

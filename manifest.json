@@ -1,0 +1,9 @@
+{
+    "name": "com.wokarol.statemachine",
+    "version": "1.0.0",
+    "displayName": "Wokarol State Machine",
+    "description": "Code-based Finite State Machine system",
+    "author": {
+        "name": "Wokarol"
+    }
+}

@@ -1,4 +1,4 @@
-﻿using UnityEngine; // Used for Random method, can be replaced when needed
+﻿using UnityEngine;
 
 namespace Wokarol.StateMachineSystem
 {

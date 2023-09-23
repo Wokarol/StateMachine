@@ -1,7 +1,10 @@
 # StateMachine
 It allows you to create generic State Machines using code
 
-State Machine like this *[Image taken from http://www.gameprogrammingpatterns.com/state.html, I recommend you to read it]
+> [!WARNING]   
+> I no longer mantain this repo and no longer use this approach to state machines as I moved to switch..case based ones due to their simplicity
+
+State Machine like this *(Image taken from http://www.gameprogrammingpatterns.com/state.html, I recommend you to read it)
 ![State Machine from gameprogrammingpatterns.com](http://www.gameprogrammingpatterns.com/images/state-flowchart.png)*
 can be converted to code like that
 ```cs
